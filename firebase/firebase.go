@@ -26,13 +26,13 @@ type Client struct {
 	*auth.Client
 }
 
-func Connect(ctx context.Context, serviceAccount string) (client *Client, err error) {
+func Connect(ctx context.Context, serviceAccount string) (*Client, error) {
 	opt := option.WithCredentialsFile(serviceAccount)
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		log.Fatalf("error connecting firebase: %v\n", err)
 	}
-
+	client := new(Client)
 	auth, err := app.Auth(ctx)
 	client.Client = auth
 	if err != nil {
