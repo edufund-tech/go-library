@@ -26,7 +26,7 @@ type Client struct {
 	*auth.Client
 }
 
-func Connect(ctx context.Context, serviceAccount string) (client Client, err error) {
+func Connect(ctx context.Context, serviceAccount string) (client *Client, err error) {
 	opt := option.WithCredentialsFile(serviceAccount)
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
