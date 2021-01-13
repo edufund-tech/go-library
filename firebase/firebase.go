@@ -28,11 +28,14 @@ type Client struct {
 
 func Connect(ctx context.Context, serviceAccount string) (client *Client, err error) {
 	opt := option.WithCredentialsFile(serviceAccount)
-	app, err := firebase.NewApp(context.Background(), nil, opt)
+	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		log.Fatalf("error connecting firebase: %v\n", err)
 	}
 	client.Client, err = app.Auth(ctx)
+	if err != nil {
+		log.Fatalf("error client spawn: %v\n", err)
+	}
 	return client, err
 }
 
