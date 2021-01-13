@@ -32,6 +32,7 @@ func Connect(ctx context.Context, serviceAccount string) (client *Client, err er
 	if err != nil {
 		log.Fatalf("error connecting firebase: %v\n", err)
 	}
+	client.Client = new(auth.Client)
 	client.Client, err = app.Auth(ctx)
 	if err != nil {
 		log.Fatalf("error client spawn: %v\n", err)
