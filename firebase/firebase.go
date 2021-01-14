@@ -26,6 +26,10 @@ type Client struct {
 	*auth.Client
 }
 
+type Token struct {
+	*auth.Token
+}
+
 func Connect(ctx context.Context, serviceAccount string) (*Client, error) {
 	opt := option.WithCredentialsFile(serviceAccount)
 	app, err := firebase.NewApp(ctx, nil, opt)
@@ -35,9 +39,7 @@ func Connect(ctx context.Context, serviceAccount string) (*Client, error) {
 	client := new(Client)
 	auth, err := app.Auth(ctx)
 	client.Client = auth
-	if err != nil {
-		log.Fatalf("error client spawn: %v\n", err)
-	}
+
 	return client, err
 }
 
@@ -52,10 +54,7 @@ func (client *Client) Create(ctx context.Context, user User) (*auth.UserRecord, 
 		Disabled(false)
 
 	u, err := client.CreateUser(ctx, params)
-	if err != nil {
-		log.Fatalf("error creating user: %v\n", err)
-	}
-	log.Printf("Successfully created user: %v\n", u)
+
 	return u, err
 }
 
@@ -69,28 +68,17 @@ func (client *Client) Update(ctx context.Context, user User) (*auth.UserRecord, 
 		PhotoURL(user.PhotoURL).
 		Disabled(false)
 	u, err := client.UpdateUser(ctx, user.UID, params)
-	if err != nil {
-		log.Fatalf("error updating user: %v\n", err)
-	}
-	log.Printf("Successfully updated user: %v\n", u)
 	return u, err
 }
 
 func (client *Client) Delete(ctx context.Context, user User) error {
 	err := client.DeleteUser(ctx, user.UID)
-	if err != nil {
-		log.Fatalf("error deleting user: %v\n", err)
-	}
-	log.Printf("Successfully deleted user: %v\n", user)
 	return err
 }
 
-func (client *Client) VerifyToken(ctx context.Context, idToken string) (verified bool, err error) {
-	token, err := client.VerifyIDToken(ctx, idToken)
-	if err != nil {
-		log.Fatalf("error verifying ID token: %v\n", err)
-	}
-
-	log.Printf("Verified ID token: %v\n", token)
-	return true, err
+func (client *Client) VerifyToken(ctx context.Context, idToken string) (*Token, error) {
+	token := new(Token)
+	tokenReturn, err := client.VerifyIDToken(ctx, idToken)
+	token.Token = tokenReturn
+	return token, err
 }
