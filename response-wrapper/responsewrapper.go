@@ -49,7 +49,7 @@ type Wrapper struct {
 	Code    int         `json:"-"`
 }
 
-func (w Wrapper) respond(wr http.ResponseWriter) {
+func (w Wrapper) Respond(wr http.ResponseWriter) {
 	b, _ := json.Marshal(w)
 	wr.Header().Add("Content-Type", "application/json")
 	wr.WriteHeader(w.Code)
