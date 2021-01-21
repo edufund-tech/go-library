@@ -49,7 +49,7 @@ type Wrapper struct {
 	Code    int         `json:"-"`
 }
 
-func (w Wrapper) Respond(wr http.ResponseWriter) {
+func (w *Wrapper) Respond(wr http.ResponseWriter) {
 	b, _ := json.Marshal(w)
 	wr.Header().Add("Content-Type", "application/json")
 	wr.WriteHeader(w.Code)
@@ -57,7 +57,7 @@ func (w Wrapper) Respond(wr http.ResponseWriter) {
 }
 
 //AddPaging
-func (w Wrapper) AddPaging(totaldata, limit, page int64) Wrapper {
+func (w *Wrapper) AddPaging(totaldata, limit, page int64) *Wrapper {
 
 	w.Meta.Pagination.Page.Total = int64(math.Ceil(float64(totaldata) / float64(limit)))
 	w.Meta.Pagination.Page.Current = page
@@ -68,7 +68,7 @@ func (w Wrapper) AddPaging(totaldata, limit, page int64) Wrapper {
 }
 
 //AddLinks FF links
-func (w Wrapper) AddLinks(values url.Values) Wrapper {
+func (w *Wrapper) AddLinks(values url.Values) *Wrapper {
 
 	w.Meta.Links.Self = urlMeta{Href: values.Encode()}
 	//set first
@@ -94,7 +94,7 @@ func (w Wrapper) AddLinks(values url.Values) Wrapper {
 }
 
 //AddMeta added meta list
-func (w Wrapper) AddMeta(r *http.Request, totaldata, limit, page int64) Wrapper {
+func (w *Wrapper) AddMeta(r *http.Request, totaldata, limit, page int64) *Wrapper {
 	values, _ := url.ParseQuery(r.URL.RawQuery)
 	w.AddPaging(totaldata, limit, page)
 	w.AddLinks(values)
