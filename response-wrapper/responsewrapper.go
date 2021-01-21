@@ -99,7 +99,7 @@ func (w *Wrapper) AddMeta(r *http.Request, totaldata, limit, page int64) *Wrappe
 	w.AddPaging(totaldata, limit, page)
 	w.AddLinks(values)
 	w.Meta = meta{
-		TotalData:  w.Meta.TotalData,
+		TotalData:  totaldata,
 		Pagination: w.Meta.Pagination,
 		Links:      w.Meta.Links,
 	}
