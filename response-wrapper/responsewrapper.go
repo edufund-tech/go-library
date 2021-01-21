@@ -43,7 +43,7 @@ type meta struct {
 type Wrapper struct {
 	Data interface{} `json:"data,omitempty"`
 
-	Meta    *meta       `json:"meta"`
+	Meta    meta        `json:"meta"`
 	Error   interface{} `json:"error"`
 	Message string      `json:"message"`
 	Code    int         `json:"-"`
