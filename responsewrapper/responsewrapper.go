@@ -57,47 +57,47 @@ func (w wrapper) respond(wr http.ResponseWriter) {
 }
 
 //AddPaging
-func (m meta) AddPaging(totaldata, limit, page int64) meta {
+func (w wrapper) AddPaging(totaldata, limit, page int64) wrapper {
 
-	m.Pagination.Page.Total = int64(math.Ceil(float64(totaldata) / float64(limit)))
-	m.Pagination.Page.Current = page
-	m.Pagination.Index.Last = limit * page
-	m.Pagination.Index.First = m.Pagination.Index.Last - limit + 1
+	w.Meta.Pagination.Page.Total = int64(math.Ceil(float64(totaldata) / float64(limit)))
+	w.Meta.Pagination.Page.Current = page
+	w.Meta.Pagination.Index.Last = limit * page
+	w.Meta.Pagination.Index.First = w.Meta.Pagination.Index.Last - limit + 1
 
-	return m
+	return w
 }
 
 //AddLinks FF links
-func (m meta) AddLinks(values url.Values) meta {
+func (w wrapper) AddLinks(values url.Values) wrapper {
 
-	m.Links.Self = urlMeta{Href: values.Encode()}
+	w.Meta.Links.Self = urlMeta{Href: values.Encode()}
 	//set first
 	values.Set("page", "1")
-	m.Links.First = urlMeta{Href: values.Encode()}
+	w.Meta.Links.First = urlMeta{Href: values.Encode()}
 
 	//set prev
-	if m.Pagination.Page.Current > 1 {
-		values.Set("page", strconv.FormatInt(m.Pagination.Page.Current, 10))
+	if w.Meta.Pagination.Page.Current > 1 {
+		values.Set("page", strconv.FormatInt(w.Meta.Pagination.Page.Current, 10))
 	}
-	m.Links.Prev = urlMeta{Href: values.Encode()}
+	w.Meta.Links.Prev = urlMeta{Href: values.Encode()}
 
 	//set last
-	values.Set("page", strconv.FormatInt(m.Pagination.Page.Total, 10))
-	m.Links.Last = urlMeta{Href: values.Encode()}
+	values.Set("page", strconv.FormatInt(w.Meta.Pagination.Page.Total, 10))
+	w.Meta.Links.Last = urlMeta{Href: values.Encode()}
 
 	//set next
-	if m.Pagination.Page.Total > m.Pagination.Page.Current {
-		values.Set("page", strconv.FormatInt(m.Pagination.Page.Current+1, 10))
-		m.Links.Next = urlMeta{Href: values.Encode()}
+	if w.Meta.Pagination.Page.Total > w.Meta.Pagination.Page.Current {
+		values.Set("page", strconv.FormatInt(w.Meta.Pagination.Page.Current+1, 10))
+		w.Meta.Links.Next = urlMeta{Href: values.Encode()}
 	}
-	return m
+	return w
 }
 
 //AddMeta added meta list
 func (w wrapper) AddMeta(r *http.Request, totaldata, limit, page int64) wrapper {
 	values, _ := url.ParseQuery(r.URL.RawQuery)
-	w.Meta.AddPaging(totaldata, limit, page)
-	w.Meta.AddLinks(values)
+	w.AddPaging(totaldata, limit, page)
+	w.AddLinks(values)
 	m := meta{
 		TotalData:  w.Meta.TotalData,
 		Pagination: w.Meta.Pagination,
