@@ -98,12 +98,10 @@ func (w *Wrapper) AddMeta(r *http.Request, totaldata, limit, page int64) *Wrappe
 	values, _ := url.ParseQuery(r.URL.RawQuery)
 	w.AddPaging(totaldata, limit, page)
 	w.AddLinks(values)
-	m := meta{
+	w.Meta = meta{
 		TotalData:  w.Meta.TotalData,
 		Pagination: w.Meta.Pagination,
 		Links:      w.Meta.Links,
 	}
-
-	w.Meta = &m
 	return w
 }
