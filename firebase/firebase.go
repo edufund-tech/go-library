@@ -2,7 +2,9 @@ package firebase
 
 import (
 	"context"
+	"errors"
 	"log"
+	"reflect"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
@@ -80,9 +82,16 @@ func (client *Client) Delete(ctx context.Context, user User) error {
 	return err
 }
 
-func (client *Client) VerifyToken(ctx context.Context, idToken string) (*Token, error) {
+func (client *Client) VerifyToken(ctx context.Context, idToken string, customClaims map[string]interface{}) (*Token, error) {
 	token := new(Token)
 	tokenReturn, err := client.VerifyIDToken(ctx, idToken)
+	if err != nil {
+		return nil, err
+	}
 	token.Token = tokenReturn
+	equal := reflect.DeepEqual(token.Claims, customClaims)
+	if !equal {
+		return nil, errors.New("CustomClaims do not match")
+	}
 	return token, err
 }

@@ -9,35 +9,35 @@ import (
 )
 
 type page struct {
-	Total   int64 `json:"_total"`
-	Current int64 `json:"_current"`
+	Total   int64 `json:"_total,omitempty"`
+	Current int64 `json:"_current,omitempty"`
 }
 
 type index struct {
-	First int64 `json:"_first"`
-	Last  int64 `json:"_last"`
+	First int64 `json:"_first,omitempty"`
+	Last  int64 `json:"_last,omitempty"`
 }
 
 type pagination struct {
-	Page  page  `json:"_page"`
-	Index index `json:"_index"`
+	Page  page  `json:"_page,omitempty"`
+	Index index `json:"_index,omitempty"`
 }
 
 type urlMeta struct {
-	Href string `json:"_href"`
+	Href string `json:"_href,omitempty"`
 }
 
 type links struct {
-	Self  urlMeta `json:"_self"`
-	First urlMeta `json:"_first"`
-	Prev  urlMeta `json:"_prev"`
-	Next  urlMeta `json:"_next"`
-	Last  urlMeta `json:"_last"`
+	Self  urlMeta `json:"_self,omitempty"`
+	First urlMeta `json:"_first,omitempty"`
+	Prev  urlMeta `json:"_prev,omitempty"`
+	Next  urlMeta `json:"_next,omitempty"`
+	Last  urlMeta `json:"_last,omitempty"`
 }
 type meta struct {
-	TotalData  int64      `json:"_total_data"`
-	Pagination pagination `json:"_pagination"`
-	Links      links      `json:"_links"`
+	TotalData  int64      `json:"_total_data,omitempty"`
+	Pagination pagination `json:"_pagination,omitempty"`
+	Links      links      `json:"_links,omitempty"`
 }
 
 type Wrapper struct {
