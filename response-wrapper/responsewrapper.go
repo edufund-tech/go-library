@@ -77,7 +77,7 @@ func (w *Wrapper) AddLinks(values url.Values) *Wrapper {
 
 	//set prev
 	if w.Meta.Pagination.Page.Current > 1 {
-		values.Set("page", strconv.FormatInt(w.Meta.Pagination.Page.Current, 10))
+		values.Set("page", strconv.FormatInt(w.Meta.Pagination.Page.Current-1, 10))
 	}
 	w.Meta.Links.Prev = urlMeta{Href: values.Encode()}
 
