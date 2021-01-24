@@ -2,9 +2,7 @@ package firebase
 
 import (
 	"context"
-	"errors"
 	"log"
-	"reflect"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
@@ -89,9 +87,5 @@ func (client *Client) VerifyToken(ctx context.Context, idToken string, customCla
 		return nil, err
 	}
 	token.Token = tokenReturn
-	equal := reflect.DeepEqual(token.Claims, customClaims)
-	if !equal {
-		return nil, errors.New("CustomClaims do not match")
-	}
 	return token, err
 }
