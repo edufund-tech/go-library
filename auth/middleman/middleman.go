@@ -12,8 +12,8 @@ import (
 	"strings"
 )
 
-//LegacyResponse legacy response
-type LegacyResponse struct {
+//LoginResponse legacy login response
+type LoginResponse struct {
 	Token   string            `json:"token,omitempty"`
 	Status  string            `json:"status,omitempty"`
 	Message string            `json:"message,omitempty"`
@@ -21,7 +21,7 @@ type LegacyResponse struct {
 }
 
 // Verify legacy token
-func Verify(ctx context.Context, token string, permissions map[string]interface{}) (legacyResponse map[string]interface{}, err error) {
+func Verify(ctx context.Context, token string, permissions map[string]interface{}) (verifyResponse map[string]interface{}, err error) {
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", ctx.Value("URL_MIDDLEMAN_VERIFY").(string), nil)
@@ -47,13 +47,13 @@ func Verify(ctx context.Context, token string, permissions map[string]interface{
 		log.Printf("[Middleman Verify] error 4 %v", err)
 		return nil, err
 	}
-	json.Unmarshal(body, &legacyResponse)
+	json.Unmarshal(body, &verifyResponse)
 
-	return legacyResponse, err
+	return verifyResponse, err
 }
 
 // Login legacy token
-func Login(ctx context.Context, payload []byte, permissions map[string]interface{}) (legacyResponse LegacyResponse, err error) {
+func Login(ctx context.Context, payload []byte, permissions map[string]interface{}) (loginResponse LoginResponse, err error) {
 	responseBody := bytes.NewBuffer(payload)
 	//Leverage Go's HTTP Post function to make request
 	resp, err := http.Post(ctx.Value("AUTH_MIDDLEMAN_LOGIN").(string), "application/json", responseBody)
@@ -61,26 +61,26 @@ func Login(ctx context.Context, payload []byte, permissions map[string]interface
 	//Handle Error
 	if err != nil {
 		log.Printf("[Middleman Login] error 1 %v", err)
-		return legacyResponse, err
+		return loginResponse, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		log.Printf("[Middleman Login] error 2 %v", resp.Status)
 		err = errors.New(fmt.Sprintf("Legacy Host Error Code %d (%s)", resp.StatusCode, resp.Status))
-		return legacyResponse, err
+		return loginResponse, err
 	}
 	//Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("[Middleman Login] error 3 %v", err)
-		return legacyResponse, err
+		return loginResponse, err
 	}
-	json.Unmarshal(body, &legacyResponse)
+	json.Unmarshal(body, &loginResponse)
 
-	if strings.ToLower(legacyResponse.Status) != "success" {
-		err = errors.New(legacyResponse.Message)
+	if strings.ToLower(loginResponse.Status) != "success" {
+		err = errors.New(loginResponse.Message)
 		log.Printf("[Middleman Login] error 4 %v", err)
 	}
-	return legacyResponse, err
+	return loginResponse, err
 }
