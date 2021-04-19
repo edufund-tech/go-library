@@ -7,4 +7,5 @@ require (
 	github.com/nsqio/go-nsq v1.0.8
 	github.com/stretchr/testify v1.4.0
 	google.golang.org/api v0.36.0
+	gorm.io/gorm v1.21.6
 )

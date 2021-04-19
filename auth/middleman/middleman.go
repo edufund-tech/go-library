@@ -23,8 +23,8 @@ type LoginResponse struct {
 // Verify legacy token
 func Verify(ctx context.Context, token string, permissions map[string]interface{}) (verifyResponse map[string]interface{}, err error) {
 	client := &http.Client{}
-
-	req, err := http.NewRequest("GET", ctx.Value("URL_MIDDLEMAN_VERIFY").(string), nil)
+	middlemanURL := ctx.Value("URL_MIDDLEMAN_VERIFY").(string)
+	req, err := http.NewRequest("GET", middlemanURL, nil)
 	if err != nil {
 		log.Printf("[Middleman Verify] error 1 %v", err)
 		return nil, err
@@ -56,7 +56,8 @@ func Verify(ctx context.Context, token string, permissions map[string]interface{
 func Login(ctx context.Context, payload []byte, permissions map[string]interface{}) (loginResponse LoginResponse, err error) {
 	responseBody := bytes.NewBuffer(payload)
 	//Leverage Go's HTTP Post function to make request
-	resp, err := http.Post(ctx.Value("AUTH_MIDDLEMAN_LOGIN").(string), "application/json", responseBody)
+	middlemanURL := ctx.Value("AUTH_MIDDLEMAN_LOGIN").(string)
+	resp, err := http.Post(middlemanURL, "application/json", responseBody)
 
 	//Handle Error
 	if err != nil {
