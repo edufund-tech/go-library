@@ -12,6 +12,17 @@ import (
 	"strings"
 )
 
+// User domain model
+type VerifyResponse struct {
+	Account Account `json:"Account"`
+}
+
+type Account struct {
+	ID    string `json:"UniqueID_MsAccount"`
+	Code  string `json:"AccountID"`
+	Email string `json:"email,omitempty"`
+}
+
 //LoginResponse legacy login response
 type LoginResponse struct {
 	Token   string            `json:"token,omitempty"`
@@ -21,32 +32,33 @@ type LoginResponse struct {
 }
 
 // Verify legacy token
-func Verify(ctx context.Context, token string, permissions map[string]interface{}) (verifyResponse map[string]interface{}, err error) {
+func Verify(ctx context.Context, token string, permissions map[string]interface{}) (verifyResponse VerifyResponse, err error) {
 	client := &http.Client{}
 	middlemanURL := ctx.Value("URL_MIDDLEMAN_VERIFY").(string)
 	req, err := http.NewRequest("GET", middlemanURL, nil)
 	if err != nil {
 		log.Printf("[Middleman Verify] error 1 %v", err)
-		return nil, err
+		return verifyResponse, err
 	}
 	req.Header.Add("Authorization", token)
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("[Middleman Verify] error 2 %v", err)
-		return nil, err
+		return verifyResponse, err
 	}
 	defer resp.Body.Close()
 	//Read the response body
 	if resp.StatusCode != 200 {
 		log.Printf("[Middleman Verify] error 3 %v", resp.Status)
 		err = errors.New(fmt.Sprintf("Legacy Host Error Code %d (%s)", resp.StatusCode, resp.Status))
-		return nil, err
+		return verifyResponse, err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("[Middleman Verify] error 4 %v", err)
-		return nil, err
+		return verifyResponse, err
 	}
+
 	json.Unmarshal(body, &verifyResponse)
 
 	return verifyResponse, err
@@ -56,7 +68,7 @@ func Verify(ctx context.Context, token string, permissions map[string]interface{
 func Login(ctx context.Context, payload []byte, permissions map[string]interface{}) (loginResponse LoginResponse, err error) {
 	responseBody := bytes.NewBuffer(payload)
 	//Leverage Go's HTTP Post function to make request
-	middlemanURL := ctx.Value("AUTH_MIDDLEMAN_LOGIN").(string)
+	middlemanURL := ctx.Value("URL_MIDDLEMAN_LOGIN").(string)
 	resp, err := http.Post(middlemanURL, "application/json", responseBody)
 
 	//Handle Error
