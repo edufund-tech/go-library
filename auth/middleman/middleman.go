@@ -3,12 +3,15 @@ package middleman
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -31,9 +34,33 @@ type LoginResponse struct {
 	Account map[string]string `json:"account,omitempty"`
 }
 
+func validateCert() (client *http.Client) {
+	if _, err := os.Stat("ssl-cert/cert.crt"); os.IsNotExist(err) {
+		client := &http.Client{}
+		return client
+	}
+	caCert, err := ioutil.ReadFile("ssl-cert/cert.crt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
+	client = &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs: caCertPool,
+			},
+		},
+	}
+	return client
+}
+
 // Verify legacy token
 func Verify(ctx context.Context, token string, permissions map[string]interface{}) (verifyResponse VerifyResponse, err error) {
-	client := &http.Client{}
+
+	client := validateCert()
+
 	middlemanURL := ctx.Value("URL_MIDDLEMAN_VERIFY").(string)
 	req, err := http.NewRequest("GET", middlemanURL, nil)
 	if err != nil {
@@ -66,10 +93,11 @@ func Verify(ctx context.Context, token string, permissions map[string]interface{
 
 // Login legacy token
 func Login(ctx context.Context, payload []byte, permissions map[string]interface{}) (loginResponse LoginResponse, err error) {
+	client := validateCert()
 	responseBody := bytes.NewBuffer(payload)
 	//Leverage Go's HTTP Post function to make request
 	middlemanURL := ctx.Value("URL_MIDDLEMAN_LOGIN").(string)
-	resp, err := http.Post(middlemanURL, "application/json", responseBody)
+	resp, err := client.Post(middlemanURL, "application/json", responseBody)
 
 	//Handle Error
 	if err != nil {
