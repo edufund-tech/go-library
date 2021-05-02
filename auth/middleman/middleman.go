@@ -36,7 +36,10 @@ type LoginResponse struct {
 
 func validateCert() (client *http.Client) {
 	if _, err := os.Stat("ssl-cert/cert.crt"); os.IsNotExist(err) {
-		client := &http.Client{}
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client := &http.Client{Transport: tr}
 		return client
 	}
 	caCert, err := ioutil.ReadFile("ssl-cert/cert.crt")
