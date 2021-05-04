@@ -21,8 +21,8 @@ type VerifyResponse struct {
 }
 
 type Account struct {
-	ID    string `json:"UniqueID_MsAccount"`
-	Code  string `json:"AccountID"`
+	ID    string `json:"AccountID"`
+	Code  string `json:"BorrowerID"`
 	Email string `json:"email,omitempty"`
 }
 
