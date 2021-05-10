@@ -21,6 +21,11 @@ func ApplySqlQuery(db *gorm.DB, filters map[string]interface{}) {
 			parseStr := value.(string)[3:]
 			splitStr := strings.Split(parseStr[:len(parseStr)-1], ",")
 			db.Where(query, splitStr)
+		case strings.Index(value.(string), "like(") == 0:
+			query := fmt.Sprint(key, " like ?")
+			parseStr := value.(string)[5:]
+			splitStr := strings.Split(parseStr[:len(parseStr)-1], ",")
+			db.Where(query, splitStr)
 		default:
 			db.Where(key, value)
 		}
