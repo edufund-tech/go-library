@@ -1,6 +1,7 @@
 package mysqlhelper
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
@@ -24,4 +25,12 @@ func ApplySqlQuery(db *gorm.DB, filters map[string]interface{}) {
 			db.Where(key, value)
 		}
 	}
+}
+
+func ApplySorting(db *gorm.DB, sorts map[string]interface{}) {
+	b := new(bytes.Buffer)
+	for key, value := range sorts {
+		fmt.Fprintf(b, "%s %s ", key, value)
+	}
+	db.Order(b.String())
 }
