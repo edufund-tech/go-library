@@ -1,6 +1,7 @@
 package mysqlhelper
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
@@ -20,8 +21,22 @@ func ApplySqlQuery(db *gorm.DB, filters map[string]interface{}) {
 			parseStr := value.(string)[3:]
 			splitStr := strings.Split(parseStr[:len(parseStr)-1], ",")
 			db.Where(query, splitStr)
+		case strings.Index(value.(string), "like(") == 0:
+			query := fmt.Sprint(key, " like ?")
+			parseStr := value.(string)[5:]
+			splitStr := strings.Split(parseStr[:len(parseStr)-1], ",")
+			valueStr := fmt.Sprintf("%%%s%%", splitStr)
+			db.Where(query, valueStr)
 		default:
 			db.Where(key, value)
 		}
 	}
+}
+
+func ApplySorting(db *gorm.DB, sorts map[string]interface{}) {
+	b := new(bytes.Buffer)
+	for key, value := range sorts {
+		fmt.Fprintf(b, "%s %s ", key, value)
+	}
+	db.Order(b.String())
 }
