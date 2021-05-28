@@ -44,6 +44,15 @@ func Connect(ctx context.Context, serviceAccount string) (*Client, error) {
 	return client, err
 }
 
+func (client *Client) GetByEmail(ctx context.Context, email string) (*auth.UserRecord, error) {
+	u, err := client.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}
+
 func (client *Client) Create(ctx context.Context, user User) (*auth.UserRecord, error) {
 	params := (&auth.UserToCreate{}).
 		Email(user.Email).
