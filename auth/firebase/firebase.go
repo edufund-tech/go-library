@@ -44,7 +44,7 @@ func Connect(ctx context.Context, serviceAccount string) (*Client, error) {
 	return client, err
 }
 
-func (client *Client) GetUserByEmail(ctx context.Context, email string) (*auth.UserRecord, error) {
+func (client *Client) GetByEmail(ctx context.Context, email string) (*auth.UserRecord, error) {
 	u, err := client.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
