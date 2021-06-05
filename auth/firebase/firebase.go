@@ -61,7 +61,7 @@ func (client *Client) Create(ctx context.Context, user User) (*auth.UserRecord, 
 		DisplayName(user.DisplayName).
 		Password(user.Password).
 		PhotoURL(user.PhotoURL).
-		Disabled(false)
+		Disabled(true)
 	u, err := client.CreateUser(ctx, params)
 	if err != nil {
 		return nil, err
