@@ -29,7 +29,7 @@ func ApplySqlQuery(db *gorm.DB, filters map[string]interface{}) {
 			db.Where(query, valueStr)
 		case strings.Index(value.(string), "not(") == 0:
 			query := fmt.Sprint(key, "<> ?")
-			parseStr := value.(string)[5:]
+			parseStr := value.(string)[4:]
 			splitStr := strings.Split(parseStr[:len(parseStr)-1], ",")
 			db.Where(query, splitStr)
 		default:
