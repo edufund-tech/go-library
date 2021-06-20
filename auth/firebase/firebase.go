@@ -53,6 +53,15 @@ func (client *Client) GetByEmail(ctx context.Context, email string) (*auth.UserR
 	return u, nil
 }
 
+func (client *Client) GetByPhone(ctx context.Context, phone string) (*auth.UserRecord, error) {
+	u, err := client.GetUserByPhoneNumber(ctx, phone)
+	if err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}
+
 func (client *Client) Create(ctx context.Context, user User) (*auth.UserRecord, error) {
 	params := (&auth.UserToCreate{}).
 		Email(user.Email).
