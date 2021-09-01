@@ -13,6 +13,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"firebase.google.com/go/v4/auth"
 )
 
 // User domain model
@@ -39,6 +41,18 @@ type LoginResponse struct {
 	Status  string            `json:"status,omitempty"`
 	Message string            `json:"message,omitempty"`
 	Account map[string]string `json:"account,omitempty"`
+}
+
+type Token struct {
+	*auth.Token
+}
+
+//Wrapper wrapper response
+type Wrapper struct {
+	Data    interface{} `json:"data,omitempty"`
+	Error   interface{} `json:"error,omitempty"`
+	Message string      `json:"message,omitempty"`
+	Code    int         `json:"-"`
 }
 
 func validateCert() (client *http.Client) {
@@ -131,6 +145,59 @@ func Verify(ctx context.Context, token string, permissions map[string]interface{
 	verifyResponse.Account.Code = verifyResponse.Account.Borrower.BorrowerID
 
 	return verifyResponse, err
+}
+
+func VerifyFirebase(ctx context.Context, token string, permissions map[string]interface{}) (firebaseToken *Token, err error) {
+	client := &http.Client{}
+	data, err := json.Marshal(permissions)
+	if err != nil {
+		log.Printf("[Middleman Verify Firebase] marshal failed %v", err)
+		return
+	}
+	r := strings.NewReader(string(data))
+	url := ctx.Value("URL_MIDDLEMAN_FIREBASE").(string)
+	if url == "" {
+		log.Print("[Middleman Verify Firebase] empty verify firebase url")
+		err = errors.New("empty verify firebase url")
+		return
+	}
+
+	req, err := http.NewRequest("POST", url, r)
+	if err != nil {
+		log.Printf("[Middleman Verify Firebase] error 1 %v", err)
+		return
+	}
+	req.Header.Add("Authorization", token)
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("[Middleman Verify Firebase] error 2 %v", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		log.Printf("[Middleman Verify Firebase] error 3 %v", resp.Status)
+		err = errors.New(fmt.Sprintf("Firebase Host Error Code %d (%s)", resp.StatusCode, resp.Status))
+		return
+	}
+
+	wrapper := Wrapper{}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("[Middleman Verify Firebase] error 4 %v", err)
+		return
+	}
+	json.Unmarshal(body, &wrapper)
+
+	f, err := json.Marshal(wrapper.Data)
+	if err != nil {
+		log.Printf("[Middleman Verify Firebase] marshal failed %v", err)
+		return
+	}
+	json.Unmarshal(f, &firebaseToken)
+
+	return
 }
 
 // Login legacy token
