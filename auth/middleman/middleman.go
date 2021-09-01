@@ -157,7 +157,9 @@ func VerifyFirebase(ctx context.Context, token string, permissions map[string]in
 	r := strings.NewReader(string(data))
 	url := ctx.Value("URL_MIDDLEMAN_FIREBASE").(string)
 	if url == "" {
-		url = "https://heimdallr.edufund.co.id/verify" // heimdallr verify
+		log.Print("[Middleman Verify Firebase] empty verify firebase url")
+		err = errors.New("empty verify firebase url")
+		return
 	}
 
 	req, err := http.NewRequest("POST", url, r)
