@@ -1,12 +1,18 @@
 package httphelper
 
 import (
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"reflect"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
+	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 //QueryInfo rep
@@ -17,6 +23,15 @@ type QueryInfo struct {
 	Kind          reflect.Kind
 	Transform     QueryTransform
 	SortTransform QueryTransform
+}
+
+type Request struct {
+	Uri     string
+	Method  string
+	Header  map[string]string
+	Query   map[string]string
+	Retries int
+	Payload string
 }
 
 //QueryTransform query into another value
@@ -132,4 +147,75 @@ func parseFunctionString(val string) (sorting map[string]interface{}) {
 		sorting[filterPayload[i+1]] = filterPayload[i]
 	}
 	return sorting
+}
+
+func HttpRequestWithRetry(req Request) (data []byte, err error) {
+	var res *http.Response
+
+	body := strings.NewReader(req.Payload)
+
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	httpReq, err := http.NewRequest(req.Method, req.Uri, body)
+	if err != nil {
+		_, fn, line, _ := runtime.Caller(1)
+		log.WithFields(log.Fields{
+			"filename": fn,
+			"line":     line,
+			"param":    req,
+		}).Error(err.Error())
+		return nil, errors.New("failed to create connection")
+	}
+
+	q := httpReq.URL.Query()
+
+	for k, v := range req.Query {
+		q.Set(k, v)
+	}
+
+	httpReq.URL.RawQuery = q.Encode()
+	log.Println("starting to get response")
+
+	for k, v := range req.Header {
+		httpReq.Header.Add(k, v)
+	}
+
+	for req.Retries > 0 {
+		res, err = client.Do(httpReq)
+		if err != nil {
+			log.Println(err)
+			req.Retries -= 1
+		} else {
+			break
+		}
+	}
+
+	if err != nil {
+		_, fn, line, _ := runtime.Caller(1)
+		log.WithFields(log.Fields{
+			"filename": fn,
+			"line":     line,
+			"param":    req,
+		}).Error(err.Error())
+		return nil, err
+	}
+
+	if res != nil {
+		defer res.Body.Close()
+		data, err = ioutil.ReadAll(res.Body)
+		if err != nil {
+			_, fn, line, _ := runtime.Caller(1)
+			log.WithFields(log.Fields{
+				"filename": fn,
+				"line":     line,
+				"param":    req,
+			}).Error(err.Error())
+			return nil, err
+		}
+		fmt.Printf("response data = %s\n", data)
+	}
+
+	return
 }
