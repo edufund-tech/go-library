@@ -1,6 +1,7 @@
 package httphelper
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -31,7 +32,7 @@ type Request struct {
 	Header  map[string]string
 	Query   map[string]string
 	Retries int
-	Payload string
+	Payload interface{}
 }
 
 //QueryTransform query into another value
@@ -152,7 +153,17 @@ func parseFunctionString(val string) (sorting map[string]interface{}) {
 func HttpRequestWithRetry(req Request) (data []byte, err error) {
 	var res *http.Response
 
-	body := strings.NewReader(req.Payload)
+	if req.Retries <= 0 {
+		req.Retries = 1
+	}
+
+	byteBody, err := json.Marshal(req.Payload)
+
+	if err != nil {
+		fmt.Print("Error while marshalling request")
+	}
+
+	body := strings.NewReader(string(byteBody))
 
 	client := &http.Client{
 		Timeout: 30 * time.Second,
