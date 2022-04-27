@@ -28,3 +28,12 @@ func GenerateStringInFromArrayInt64(arr []int64) (result string) {
 	result = result + ")"
 	return result
 }
+
+func Contains(a []string, x string) bool {
+	for _, n := range a {
+		if x == n {
+			return true
+		}
+	}
+	return false
+}

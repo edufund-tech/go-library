@@ -69,3 +69,24 @@ func TestGenerateStringInFromArrayInt64(t *testing.T) {
 		}
 	}
 }
+
+func TestContains(t *testing.T) {
+	type addTest struct {
+		param    string
+		expected bool
+	}
+
+	str := []string{"1", "2", "3"}
+	var addTests = []addTest{
+		{"1", true},
+		{"8", false},
+	}
+
+	for _, value := range addTests {
+		expectation := value.expected
+		actual := Contains(str, value.param)
+		if actual != expectation {
+			t.Errorf("Expected %v but got %v", expectation, actual)
+		}
+	}
+}
