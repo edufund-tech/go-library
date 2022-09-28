@@ -1,6 +1,6 @@
-package int_utils
+package intutils
 
-func intInSlice(a int, list []int) bool {
+func IntInSlice(a int, list []int) bool {
 	for _, b := range list {
 		if b == a {
 			return true

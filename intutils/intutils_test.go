@@ -1,4 +1,4 @@
-package int_utils
+package intutils
 
 import (
 	"reflect"
@@ -20,7 +20,7 @@ func TestIntInSlice(t *testing.T) {
 
 	for _, value := range addTests {
 		expectation := value.expected
-		actual := intInSlice(value.number, value.listNumber)
+		actual := IntInSlice(value.number, value.listNumber)
 		if !reflect.DeepEqual(actual, expectation) {
 			t.Errorf("Expected %v but got %v", expectation, actual)
 		}
