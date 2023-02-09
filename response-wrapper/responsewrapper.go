@@ -43,10 +43,11 @@ type meta struct {
 type Wrapper struct {
 	Data interface{} `json:"data,omitempty"`
 
-	Meta    meta        `json:"meta,omitempty"`
-	Error   interface{} `json:"error,omitempty"`
-	Message string      `json:"message,omitempty"`
-	Code    int         `json:"-"`
+	Meta       meta        `json:"meta,omitempty"`
+	Error      interface{} `json:"error,omitempty"`
+	Extensions interface{} `json:"extensions,omitempty"`
+	Message    string      `json:"message,omitempty"`
+	Code       int         `json:"-"`
 }
 
 func (w *Wrapper) Respond(wr http.ResponseWriter) {
@@ -56,7 +57,7 @@ func (w *Wrapper) Respond(wr http.ResponseWriter) {
 	wr.Write(b)
 }
 
-//AddPaging
+// AddPaging
 func (w *Wrapper) AddPaging(totaldata, limit, page int64) *Wrapper {
 
 	w.Meta.Pagination.Page.Total = int64(math.Ceil(float64(totaldata) / float64(limit)))
@@ -67,7 +68,7 @@ func (w *Wrapper) AddPaging(totaldata, limit, page int64) *Wrapper {
 	return w
 }
 
-//AddLinks FF links
+// AddLinks FF links
 func (w *Wrapper) AddLinks(values url.Values) *Wrapper {
 
 	w.Meta.Links.Self = urlMeta{Href: values.Encode()}
@@ -93,7 +94,7 @@ func (w *Wrapper) AddLinks(values url.Values) *Wrapper {
 	return w
 }
 
-//AddMeta added meta list
+// AddMeta added meta list
 func (w *Wrapper) AddMeta(r *http.Request, totaldata, limit, page int64) *Wrapper {
 	values, _ := url.ParseQuery(r.URL.RawQuery)
 	w.AddPaging(totaldata, limit, page)
