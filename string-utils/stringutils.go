@@ -2,7 +2,13 @@ package stringutils
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
+)
+
+const (
+	alphabeticalLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	alphanumericLetters = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 )
 
 func ExtractStringToArrayStr(str string) (result []string) {
@@ -36,4 +42,20 @@ func Contains(a []string, x string) bool {
 		}
 	}
 	return false
+}
+
+func RandAlphabeticalString(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = alphabeticalLetters[rand.Intn(len(alphabeticalLetters))]
+	}
+	return string(b)
+}
+
+func RandAlphanumericString(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = alphanumericLetters[rand.Intn(len(alphanumericLetters))]
+	}
+	return string(b)
 }
