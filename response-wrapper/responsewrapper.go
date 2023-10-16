@@ -43,7 +43,7 @@ type meta struct {
 type Wrapper struct {
 	Data interface{} `json:"data,omitempty"`
 
-	Meta       meta        `json:"meta,omitempty"`
+	Meta       *meta       `json:"meta,omitempty"`
 	Error      interface{} `json:"error,omitempty"`
 	Extensions interface{} `json:"extensions,omitempty"`
 	Message    string      `json:"message,omitempty"`
@@ -58,12 +58,19 @@ func (w *Wrapper) Respond(wr http.ResponseWriter) {
 }
 
 // AddPaging
-func (w *Wrapper) AddPaging(totaldata, limit, page int64) *Wrapper {
-
-	w.Meta.Pagination.Page.Total = int64(math.Ceil(float64(totaldata) / float64(limit)))
-	w.Meta.Pagination.Page.Current = page
-	w.Meta.Pagination.Index.Last = limit * page
-	w.Meta.Pagination.Index.First = w.Meta.Pagination.Index.Last - limit + 1
+func (w *Wrapper) AddPaging(totaldata, limit, pages int64) *Wrapper {
+	w.Meta = &meta{
+		Pagination: pagination{
+			Page: page{
+				Total:   int64(math.Ceil(float64(totaldata) / float64(limit))),
+				Current: pages,
+			},
+			Index: index{
+				Last:  limit * pages,
+				First: (limit * pages) - limit + 1,
+			},
+		},
+	}
 
 	return w
 }
@@ -99,7 +106,7 @@ func (w *Wrapper) AddMeta(r *http.Request, totaldata, limit, page int64) *Wrappe
 	values, _ := url.ParseQuery(r.URL.RawQuery)
 	w.AddPaging(totaldata, limit, page)
 	w.AddLinks(values)
-	w.Meta = meta{
+	w.Meta = &meta{
 		TotalData:  totaldata,
 		Pagination: w.Meta.Pagination,
 		Links:      w.Meta.Links,
